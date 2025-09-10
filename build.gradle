@@ -1,0 +1,55 @@
+plugins {
+	id 'java'
+	id 'org.graalvm.buildtools.native' version '0.10.6'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	testImplementation platform('io.projectreactor:reactor-bom:2024.0.10')
+	testImplementation 'io.projectreactor.netty:reactor-netty-http'
+	testImplementation 'io.projectreactor:reactor-test'
+
+	testImplementation 'org.slf4j:slf4j-api:1.7.36'
+	testRuntimeOnly 'ch.qos.logback:logback-classic:1.5.18'
+
+	testImplementation platform('org.junit:junit-bom:5.10.0')
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+def initializeAtBuildTime = "org.junit.jupiter.api.DisplayNameGenerator\$IndicativeSentences," +
+		"org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor\$ClassInfo," +
+		"org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor\$LifecycleMethods," +
+		"org.junit.jupiter.engine.descriptor.ClassTemplateInvocationTestDescriptor," +
+		"org.junit.jupiter.engine.descriptor.ClassTemplateTestDescriptor," +
+		"org.junit.jupiter.engine.descriptor.DynamicDescendantFilter\$Mode," +
+		"org.junit.jupiter.engine.descriptor.ExclusiveResourceCollector\$1," +
+		"org.junit.jupiter.engine.descriptor.MethodBasedTestDescriptor\$MethodInfo," +
+		"org.junit.jupiter.engine.discovery.ClassSelectorResolver\$DummyClassTemplateInvocationContext," +
+		"org.junit.platform.engine.support.store.NamespacedHierarchicalStore\$EvaluatedValue," +
+		"org.junit.platform.launcher.core.DiscoveryIssueNotifier," +
+		"org.junit.platform.launcher.core.HierarchicalOutputDirectoryProvider," +
+		"org.junit.platform.launcher.core.LauncherDiscoveryResult\$EngineResultInfo," +
+		"org.junit.platform.suite.engine.SuiteTestDescriptor\$LifecycleMethods," +
+		"org.junit.platform.launcher.core.LauncherPhase"
+
+graalvmNative {
+	binaries {
+		test {
+			buildArgs.add("--initialize-at-build-time=${initializeAtBuildTime}")
+		}
+	}
+	metadataRepository {
+		version = "0.3.25"
+	}
+}
